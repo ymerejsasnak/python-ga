@@ -10,6 +10,9 @@ class Robot:
         for x in range(243):
             self.genes.append(random.randrange(0, 7))
 
+    def __str__(self):
+            return ''.join(map(str, self.genes))
+
 
 class Grid:
 
@@ -32,8 +35,8 @@ class Grid:
                 msg = ' has an item'
             else:
                 msg = ' is empty'
-            msgs.append(str(k) + msg)
-        return ''.join(str(msgs))
+            msgs.append("cell " + str(k) + msg)
+        return '\n'.join(msgs)
 
 
 def main():
@@ -46,6 +49,9 @@ def main():
     robots = []
     for x in range(200):
         robots.append(Robot())
+
+    for x in range(5):  #just print first five original robots as a test/example
+        print ("Robot " + str(x) + ": " + str(robots[x]))  
 
 
 main()
