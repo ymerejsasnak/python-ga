@@ -41,6 +41,8 @@ class Grid:
 
 def main():
 
+    #below isn't quite right yet...getting ahead of myself...need to make it all work for 1 robot before I go further
+
     #create grid
     g = Grid()
     print (g)
@@ -51,7 +53,7 @@ def main():
         robots.append(Robot())
 
     for x in range(5):  #just print first five original robots as a test/example
-        print ("Robot " + str(x) + ": " + str(robots[x]))  
+        print ("Robot " + str(x) + ": " + str(robots[x]))
 
 
 main()
