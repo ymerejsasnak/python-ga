@@ -4,16 +4,22 @@ import random
 class Robot:
 
     def __init__(self):
-        '''initialize each robot with randomized list of instructions
+        '''initialize each robot with position and randomized instructions
         (162 but some are not actually possible)
          0-north, 1-south, 2-east,3-west,4-stay,5-pick up,6-random move'''
-
+        #will need to adjust this for children robots eventually
+        self.x = 0
+        self.y = 0
         self.genes = []
         for x in range(162):
             self.genes.append(random.randrange(7))
 
     def __str__(self):
             return ''.join(map(str, self.genes))
+
+    def move(self, grid):
+        situation = grid.get_situation(self.x, self.y)
+        #use situation variable to lookup action, then take action (checking for wall collisions since sit table is random)
 
 
 class Situation_Table:
@@ -67,6 +73,30 @@ class Grid:
                 msg = ' is empty'
             msgs.append("cell " + str(k) + msg)
         return '\n'.join(msgs)
+
+    def get_situation(self, x, y):
+        #remember: 0 empty, 1 item, 2 wall  in n/e/w/s/c order
+        current = (x, y)
+        view = [] 
+        if y == 0:
+            view[0] = 2
+        else:
+            view[0] = self.grid[(x, y - 1)]
+        if x == 9:
+            view[1] = 2
+        else:
+            view[1] = self.grid[(x + 1, y)]
+        if x == 0:
+            view[2] = 2
+        else:
+            view[2] = self.grid[(x - 1, y)]
+        if y == 9:
+            view[3] = 2
+        else:
+            view[3] = self.grid[(x, y + 1)]
+        return tuple(view)
+        
+
 
 
 
