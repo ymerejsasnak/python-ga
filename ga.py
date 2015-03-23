@@ -33,21 +33,41 @@ class Robot:
 
     
     def move(self, grid):
-        #use situation variable to lookup action, then take action (checking for wall collisions since sit table is random)
+        #use situation variable to lookup action, then take action (checking for wall collisions)
+        #hit wall -5 points, pick up item +10 points, try to pick up but nothing there -1 points
         situation = grid.get_situation(self.x, self.y)
         action = self.genes[situation]
-        if action == 0 and self.y > 0:
-            self.y -= 1
-        if action == 1 and self.y < 9:
-            self.y += 1
-        if action == 2 and self.x < 9:
-            self.x += 1
-        if action == 3 and self.x > 0:
-            self.x -= 1
-        if action == 4 and situation[4] == True:
-            self.score += 1 #just 1 point for each for now until i figure something better
-            grid.grid[(self.x, self.y)] = False #no more item in this spot
-        if action == 5: #not quite random as is right now
+        #moves
+        if action == 0:
+            if self.y > 0:
+                self.y -= 1
+            else:
+                self.score -= 10
+        if action == 1:
+            if self.y < 9:
+                self.y += 1
+            else:
+                self.score -= 10
+        if action == 2:
+            if self.x < 9:
+                self.x += 1
+            else:
+                self.score -= 10
+        if action == 3:
+            if self.x > 0:
+                self.x -= 1
+            else:
+                self.score -= 10
+        #pickup
+        if action == 4:
+            if situation[4] == True:
+                self.score += 10 #just 1 point for each for now until i figure something better
+                grid.grid[(self.x, self.y)] = False #no more item in this spot
+            else:
+                self.score -= 1
+
+        #final random action (rewrite it better when clearer headed...not quite random as is)
+        if action == 5: 
             if random.randrange(2) == 0:
                 if random.randrange(2) == 0 and self.y > 0:
                     self.y -= 1
@@ -129,7 +149,7 @@ class Grid:
 
 def main():
 
-    #below isn't quite right yet...getting ahead of myself...need to make it all work for 1 robot before I go further
+    #below is a mess for now...testing stuff, etc
 
     #create grid
     grid = Grid()
@@ -140,13 +160,21 @@ def main():
     for x in range(200):
         robots.append(Robot())
 
-    for x in range(5):  #just print first five original robots as a test/example
-        print ("Robot " + str(x) + ": " + str(robots[x]))
 
-    for x in range(200):
-        print (robots[0].x, robots[0].y)
-        print (robots[0].move(grid))#just test first robot for now
-    print (robots[0].score)
+
+
+    #for x in range(5):  #just print first five original robots as a test/example
+    #    print ("Robot " + str(x) + ": " + str(robots[x]))
+
+    #each robot
+    for r in robots:
+        #moves 200 times
+        for i in range(200):
+            r.move(grid)
+        #then prints score
+        print (r.score)
+
+
 
 
 
