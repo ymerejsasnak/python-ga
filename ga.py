@@ -3,7 +3,7 @@ import random
 
 class Robot:
 
-    def __init__(self):
+    def __init__(self, parent1=[], parent2=[]):
         #initialize each robot with position and randomized instructions
         #(162 but some are not actually possible)
         #0-north, 1-south, 2-east,3-west,4-pick up,5-random move
@@ -16,14 +16,20 @@ class Robot:
         #start robot roughly in the middle instead of 0,0 (does it matter?)
         self.x = 4
         self.y = 5
-        self.score = 0
+        self.score = 0  #per session scores
+        self.fitness = None  #overall fitness based on averaged scores
 
-        self.genes = []
-        for g in range(162):
-            self.genes.append(random.randrange(6))
+        if parent1 == [] and parent2 == []:
+            #has no parents...is an original (totally random) robot
+            self.genes = []
+            for g in range(162):
+                self.genes.append(random.randrange(6))
+        else:
+            #has parents (TODO)
+            pass
 
     def __str__(self):
-        return " ".join(map(str, self.genes)) + '\n'
+        return ' '.join(map(str, self.genes)) + '\n'
 
     def move(self, grid, table):
         #use situation variable to lookup action,
@@ -40,23 +46,23 @@ class Robot:
                 self.y -= 1
             else:
                 self.score -= 10
-        if action == 1:
+        elif action == 1:
             if self.y < 9:
                 self.y += 1
             else:
                 self.score -= 10
-        if action == 2:
+        elif action == 2:
             if self.x < 9:
                 self.x += 1
             else:
                 self.score -= 10
-        if action == 3:
+        elif action == 3:
             if self.x > 0:
                 self.x -= 1
             else:
                 self.score -= 10
         #pickup
-        if action == 4:
+        elif action == 4:
             if situation[4]:
                 self.score += 10
                 #and remove item from spot:
@@ -66,7 +72,7 @@ class Robot:
 
         #final random action
         #(rewrite it better when clearer headed...not quite random as is)
-        if action == 5:
+        elif action == 5:
             if random.randrange(2) == 0:
                 if random.randrange(2) == 0 and self.y > 0:
                     self.y -= 1
@@ -117,8 +123,8 @@ class Grid:
         for y in range(10):
             msg = ''
             for x in range(10):
-                msg += str(int(self.grid[(x, y)])) + " "
-            msgs.append(msg)
+                msg += str(int(self.grid[(x, y)])) + ' '
+                msgs.append(msg)
 
         return '\n'.join(msgs) + '\n'
 
@@ -156,13 +162,33 @@ def main():
     for x in range(200):
         robots.append(Robot())
 
+
+
+    
+    
+
     #each robot
     for r in robots:
-        #moves 200 times
-        for i in range(200):
-            r.move(grid, table)
-        #then prints score
-        print (r.score)
+        this_robot_scores = []
+        
+        #performs 100 sessions
+        for s in range(100):
+            r.score = 0
+            
+            #making 200 moves each time
+            for m in range(200):
+                r.move(grid, table)
+                
+            this_robot_scores.append(r.score)
+        
+        #average those 100 scores to get fitness rating
+        r.fitness = sum(this_robot_scores) / 100
+        
+
+
+        
+        
+        
 
 
 main()
