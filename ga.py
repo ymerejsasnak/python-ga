@@ -45,22 +45,22 @@ class Robot:
             if self.y > 0:
                 self.y -= 1
             else:
-                self.score -= 10
+                self.score -= 5
         elif action == 1:
             if self.y < 9:
                 self.y += 1
             else:
-                self.score -= 10
+                self.score -= 5
         elif action == 2:
             if self.x < 9:
                 self.x += 1
             else:
-                self.score -= 10
+                self.score -= 5
         elif action == 3:
             if self.x > 0:
                 self.x -= 1
             else:
-                self.score -= 10
+                self.score -= 5
         #pickup
         elif action == 4:
             if situation[4]:
@@ -153,8 +153,6 @@ class Grid:
 
 def main():
 
-    #create grid
-    grid = Grid()
     #create lookup table
     table = Situation_Table()
     #create 200 randomized robots to start with
@@ -167,15 +165,16 @@ def main():
     
     
 
-    #each robot
+    #--each robot...
     for r in robots:
         this_robot_scores = []
         
-        #performs 100 sessions
+        #--performs 100 sessions...
         for s in range(100):
+            grid = Grid()  #new layout each time
             r.score = 0
             
-            #making 200 moves each time
+            #--making 200 moves each time...
             for m in range(200):
                 r.move(grid, table)
                 
@@ -183,7 +182,7 @@ def main():
         
         #average those 100 scores to get fitness rating
         r.fitness = sum(this_robot_scores) / 100
-        
+        print (r.fitness)
 
 
         
