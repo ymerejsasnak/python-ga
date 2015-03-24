@@ -13,10 +13,11 @@ class Robot:
         #(ie north, east, west, south, and current) -- and use as key in dict
         #to lookup action to take (0-5)
 
-        #start robot roughly in the middle instead of 0,0 (does it matter?)
-        self.x = 4
-        self.y = 5
-        self.score = 0  #per session scores
+        #start robot in top left corner (does it matter where really?)
+        self.x = 0
+        self.y = 0
+        self.session_score = 0 
+        self.all_scores = None
         self.fitness = None  #overall fitness based on averaged scores
 
         if parent1 == [] and parent2 == []:
@@ -45,30 +46,30 @@ class Robot:
             if self.y > 0:
                 self.y -= 1
             else:
-                self.score -= 5
+                self.session_score -= 5
         elif action == 1:
             if self.y < 9:
                 self.y += 1
             else:
-                self.score -= 5
+                self.session_score -= 5
         elif action == 2:
             if self.x < 9:
                 self.x += 1
             else:
-                self.score -= 5
+                self.session_score -= 5
         elif action == 3:
             if self.x > 0:
                 self.x -= 1
             else:
-                self.score -= 5
+                self.session_score -= 5
         #pickup
         elif action == 4:
             if situation[4]:
-                self.score += 10
+                self.session_score += 10
                 #and remove item from spot:
                 grid.grid[(self.x, self.y)] = False
             else:
-                self.score -= 1
+                self.session_score -= 1
 
         #final random action
         #(rewrite it better when clearer headed...not quite random as is)
@@ -151,43 +152,42 @@ class Grid:
         return tuple(view)
 
 
-def main():
+class GA_Control:
 
-    #create lookup table
-    table = Situation_Table()
-    #create 200 randomized robots to start with
-    robots = []
-    for x in range(200):
-        robots.append(Robot())
+    def __init__(self):
+        #create lookup table
+        self.table = Situation_Table()
+        #create 200 randomized robots to start with
+        self.robots = []
+        for x in range(200):
+            self.robots.append(Robot())
 
 
+    def main(self):
 
-    
-    
-
-    #--each robot...
-    for r in robots:
-        this_robot_scores = []
-        
-        #--performs 100 sessions...
-        for s in range(100):
-            grid = Grid()  #new layout each time
-            r.score = 0
+        #--each robot...
+        for r in self.robots:
+            r.all_scores = []
             
-            #--making 200 moves each time...
-            for m in range(200):
-                r.move(grid, table)
+            #--performs 100 sessions...
+            for s in range(100):
+                self.grid = Grid()  #new layout each time
+                r.session_score = 0
                 
-            this_robot_scores.append(r.score)
-        
-        #average those 100 scores to get fitness rating
-        r.fitness = sum(this_robot_scores) / 100
-        print (r.fitness)
+                #--making 200 moves each time...
+                for m in range(200):
+                    r.move(self.grid, self.table)
+                    
+                r.all_scores.append(r.session_score)
+            
+            #average those 100 scores to get fitness rating
+            r.fitness = sum(r.all_scores) / 100
+            print (r.fitness)
 
 
         
         
         
+ga = GA_Control()
+ga.main()
 
-
-main()
