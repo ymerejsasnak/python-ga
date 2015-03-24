@@ -1,4 +1,5 @@
 import random
+from operator import attrgetter
 
 
 class Robot:
@@ -16,18 +17,19 @@ class Robot:
         #start robot in top left corner (does it matter where really?)
         self.x = 0
         self.y = 0
-        self.session_score = 0 
+        self.session_score = 0
         self.all_scores = None
-        self.fitness = None  #overall fitness based on averaged scores
+        self.fitness = None  # overall fitness based on averaged scores
 
         if parent1 == [] and parent2 == []:
-            #has no parents...is an original (totally random) robot
+            #ie, has no parents...is an original (totally random) robot
             self.genes = []
             for g in range(162):
                 self.genes.append(random.randrange(6))
         else:
-            #has parents (TODO)
-            pass
+            split = random.randrange(162)
+            self.genes = parent1[:split] + parent2[split:]
+            #need to add mutations
 
     def __str__(self):
         return ' '.join(map(str, self.genes)) + '\n'
@@ -155,39 +157,57 @@ class Grid:
 class GA_Control:
 
     def __init__(self):
+        #'constants' for how many of each to do
+        #note: in book pop is 200, generations is 1000, sessions 100, moves 200
+        #but I cut it down because the code (at least as written)
+        #would take a few hours to run otherwise
+        self.POPULATION = 100
+        self.GENERATIONS = 100
+        self.SESSIONS = 50
+        self.MOVES = 100
+
         #create lookup table
         self.table = Situation_Table()
         #create 200 randomized robots to start with
         self.robots = []
-        for x in range(200):
+        for x in range(self.POPULATION):
             self.robots.append(Robot())
 
-
-    def main(self):
+    def run_sessions(self):
 
         #--each robot...
         for r in self.robots:
             r.all_scores = []
-            
+
             #--performs 100 sessions...
-            for s in range(100):
-                self.grid = Grid()  #new layout each time
+            for s in range(self.SESSIONS):
+                self.grid = Grid()   # new layout each time
                 r.session_score = 0
-                
+
                 #--making 200 moves each time...
-                for m in range(200):
+                for m in range(self.MOVES):
                     r.move(self.grid, self.table)
-                    
+
                 r.all_scores.append(r.session_score)
-            
+
             #average those 100 scores to get fitness rating
-            r.fitness = sum(r.all_scores) / 100
-            print (r.fitness)
+            r.fitness = sum(r.all_scores) / self.SESSIONS
 
+    def next_generation(self):
+        new_robots = []
+        for r in range(self.POPULATION):
+            #for each parent randomly pick 15 robots, then use the one of those with max fitness value
+            parent1 = max(random.sample(self.robots, 15), key=attrgetter('fitness'))
+            parent2 = max(random.sample(self.robots, 15), key=attrgetter('fitness'))
+            #then use them twice (to make 2 children)
+            new_robots.append(Robot(parent1.genes, parent2.genes))
+            new_robots.append(Robot(parent1.genes, parent2.genes))
+        self.robots = new_robots
+        
 
-        
-        
-        
 ga = GA_Control()
-ga.main()
 
+for i in range(ga.GENERATIONS):
+    ga.run_sessions()
+    print (max(ga.robots, key=attrgetter('fitness')).fitness)  # temp thing to print out max of each generation
+    ga.next_generation()

@@ -4,9 +4,11 @@ first python project: simple genetic algorithm
 
 ###next todo:
 
-* apply evolution using fitness ratings: each new robot has 2 parents (pick 15 random ones and choose the 1 with highest rating, then do again)...pick a random point (0 - 162) in the gene list to 'crossover' each parent's genes (first x from one, with rest from the other)...make 2 children from these parents (using SAME resultant genes or do crossover twice?  probably latter...)  each child's genes are subject to random mutation (set action replaced by a random action) but I will have to figure out the randomness of this...  ...Keep going until there is a new generation of 200 child robots
+* need to add random mutation to children
 
-* repeat this for 1000 generations and compare original ratings (say avg and max?) with 1000th decendents ratings
+* need to store average and maximum fitness for each generation to be able to compare
+
+* need to test a bunch of stuff to make sure it all works right because so much is not really visible in the running of it
 
 
 ###and then, eventually.... (in future...have to move on from this for now to learn more practical things, sadly...)
