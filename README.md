@@ -4,11 +4,11 @@ first python project: simple genetic algorithm
 
 ###next todo:
 
-* need to add random mutation to children
-
-* need to store average and maximum fitness for each generation to be able to compare
+* need to store average and maximum fitness for each generation to be able to compare in the end
 
 * need to test a bunch of stuff to make sure it all works right because so much is not really visible in the running of it
+
+* add a timer...times 1 generation and estimates time remaining based on that (or similar <idea class=""></idea>)
 
 
 ###and then, eventually.... (in future...have to move on from this for now to learn more practical things, sadly...)

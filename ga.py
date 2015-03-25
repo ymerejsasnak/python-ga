@@ -7,12 +7,12 @@ class Robot:
     def __init__(self, parent1=[], parent2=[]):
         #initialize each robot with position and randomized instructions
         #(162 but some are not actually possible)
-        #0-north, 1-south, 2-east,3-west,4-pick up,5-random move
+        #0-north, 1-south, 2-east,3-west,4-pick up,5-do nothing, 6-random move
         #encoding: each current or adjacent space has 3 possible states:
         #is empty, has item, or is a wall....make each possible combination
         #a tuple of five numbers (0 empty, 1 item, 2 wall) in n/e/w/s/c order
         #(ie north, east, west, south, and current) -- and use as key in dict
-        #to lookup action to take (0-5)
+        #to lookup action to take (0-6)
 
         #start robot in top left corner (does it matter where really?)
         self.x = 0
@@ -25,11 +25,15 @@ class Robot:
             #ie, has no parents...is an original (totally random) robot
             self.genes = []
             for g in range(162):
-                self.genes.append(random.randrange(6))
+                self.genes.append(random.randrange(7))
         else:
             split = random.randrange(162)
             self.genes = parent1[:split] + parent2[split:]
-            #need to add mutations
+            #and add mutations:
+            #1 in 10 chance 1 item in genes will be randomized
+            #(number is just guess at what may or may not be effective)
+            if random.randrange(5) == 0:
+                self.genes[random.randrange(162)] = random.randrange(7)
 
     def __str__(self):
         return ' '.join(map(str, self.genes)) + '\n'
@@ -42,6 +46,10 @@ class Robot:
 
         situation = grid.get_situation(self.x, self.y)
         action = self.genes[table.lookup[situation]]
+
+        #check for random action first to reassign action number
+        if action == 6:
+            action == random.randrange(6)
 
         #moves
         if action == 0:
@@ -73,19 +81,6 @@ class Robot:
             else:
                 self.session_score -= 1
 
-        #final random action
-        #(rewrite it better when clearer headed...not quite random as is)
-        elif action == 5:
-            if random.randrange(2) == 0:
-                if random.randrange(2) == 0 and self.y > 0:
-                    self.y -= 1
-                elif self.y < 9:
-                    self.y += 1
-            else:
-                if random.randrange(2) == 0 and self.x > 0:
-                    self.x -= 0
-                elif self.x < 9:
-                    self.x += 0
         return action
 
 
@@ -133,25 +128,30 @@ class Grid:
 
     def get_situation(self, x, y):
         #remember: 0 empty, 1 item, 2 wall  in n/e/w/s/c order
-        view = []
+        situation = []
         if y == 0:
-            view.append(2)
+            situation.append(2)
         else:
-            view.append(self.grid[(x, y - 1)])
+            situation.append(self.grid[(x, y - 1)])
+
         if x == 9:
-            view.append(2)
+            situation.append(2)
         else:
-            view.append(self.grid[(x + 1, y)])
+            situation.append(self.grid[(x + 1, y)])
+
         if x == 0:
-            view.append(2)
+            situation.append(2)
         else:
-            view.append(self.grid[(x - 1, y)])
+            situation.append(self.grid[(x - 1, y)])
+
         if y == 9:
-            view.append(2)
+            situation.append(2)
         else:
-            view.append(self.grid[(x, y + 1)])
-        view.append(self.grid[(x, y)])
-        return tuple(view)
+            situation.append(self.grid[(x, y + 1)])
+
+        situation.append(self.grid[(x, y)])
+
+        return tuple(situation)
 
 
 class GA_Control:
@@ -160,11 +160,16 @@ class GA_Control:
         #'constants' for how many of each to do
         #note: in book pop is 200, generations is 1000, sessions 100, moves 200
         #but I cut it down because the code (at least as written)
-        #would take a few hours to run otherwise
-        self.POPULATION = 100
-        self.GENERATIONS = 100
-        self.SESSIONS = 50
-        self.MOVES = 100
+        #would take about four hours (I think??) to run otherwise
+        #**but note: based on graph in book,
+        #significant improvements seen in population
+        #after only about 200 - 300 generations
+        #**and of course the question remains:
+        #how might I optimize this if at all?
+        self.POPULATION = 200
+        self.GENERATIONS = 1000
+        self.SESSIONS = 100
+        self.MOVES = 200
 
         #create lookup table
         self.table = Situation_Table()
@@ -196,18 +201,23 @@ class GA_Control:
     def next_generation(self):
         new_robots = []
         for r in range(self.POPULATION):
-            #for each parent randomly pick 15 robots, then use the one of those with max fitness value
-            parent1 = max(random.sample(self.robots, 15), key=attrgetter('fitness'))
-            parent2 = max(random.sample(self.robots, 15), key=attrgetter('fitness'))
+            #for each parent randomly pick 15 robots,
+            #then use the one of those with max fitness value
+            parent1 = max(random.sample(self.robots, 15),
+                          key=attrgetter('fitness'))
+            parent2 = max(random.sample(self.robots, 15),
+                          key=attrgetter('fitness'))
             #then use them twice (to make 2 children)
             new_robots.append(Robot(parent1.genes, parent2.genes))
             new_robots.append(Robot(parent1.genes, parent2.genes))
         self.robots = new_robots
-        
+
 
 ga = GA_Control()
 
 for i in range(ga.GENERATIONS):
     ga.run_sessions()
-    print (max(ga.robots, key=attrgetter('fitness')).fitness)  # temp thing to print out max of each generation
+    print ("Generation " + str(i) + " best fitness rating: " +
+           str(max(ga.robots, key=attrgetter('fitness')).fitness))
+    #print average fitness per gen here too?
     ga.next_generation()
