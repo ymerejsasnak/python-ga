@@ -1,5 +1,10 @@
 # python-ga
 first python project: simple genetic algorithm
+(adapted from description in Melanie Mitchell's book "Complexity, a Guided Tour")
+
+###note!
+
+* just read over code and noticed the robot's position is not reset to 0,0 at the beginning of each session! (of course this may not have much effect, but it was not intended therefore should be fixed when I have more time...)
 
 
 ###next todo:
